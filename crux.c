@@ -1,0 +1,80 @@
+// initially built off of Nir Lichtman's own guide: https://www.youtube.com/watch?v=aSkW8HgQbSk
+// has some more error checking and cool features/prompts
+// the rust implementation is effectively a translation of the C implementation
+
+#include <stdio.h>
+#include <stdbool.h>
+
+// print the hex values of the read ascii chars in the buffer
+void print_hex(unsigned char* buffer, int numchars) {
+    for (int i = 0; i < numchars; i++) {
+        if (i % 10 == 0) // every 10 hex bytes gets a newline and prints a number line
+            printf("\n%d | ", i/10);
+        
+        // .2 will ensure 2 bytes are printed per hex character 
+        printf("%.2X ", buffer[i]);
+    }
+}
+
+
+int main(int argc, char** argv) {
+    if (argc < 2) {
+        printf("[-] No file was given.");
+        return 0;
+    }
+
+
+    FILE* file = fopen(argv[1], "r");
+    if (file == NULL) {
+        printf("[-] Error when opening file.");
+        return 1;
+    }
+
+    // unsigned since we're storing ASCII, 0 - 255
+    unsigned char buffer[1024] = {0};
+    // buffer, size of elements being read, the count of elements to be read, the stream to read from
+    int numBytesRead = fread(buffer, sizeof(char), 1024, file);
+    printf("[+] Bytes read: %d bytes\n", numBytesRead);
+
+    print_hex(buffer, numBytesRead);
+    printf("\n[+] Successful hex read of buffer.\n");
+
+    while (true) {
+        char cmd;
+        int loc;
+
+        printf("[+] Enter a cmd [p(rint),e(dit),s(ave)] and location [int] (p1, e3...)\n$ ");
+        scanf(" %c%d", &cmd, &loc);
+        if (cmd == 'p') { // print within buffer bounds
+            (loc < (numBytesRead-10)) ? print_hex(buffer + loc, 10) : printf("[!] OOB buffer access spotted!\n"); // print 10 hex bytes at the specified location
+        }
+
+        if (cmd == 'e') { // edit  
+                          // %hhx will ingest just one hex byte and edit THAT byte in the given file
+                          // specifically, hh will turn the input into an unsigned char*, which as we know is 1 byte
+                          // src: https://stackoverflow.com/questions/21782244/what-is-the-need-of-hh-and-h-format-specifiers
+                          // if this is not done, then scanf actually overruns and edits 4 bytes into the file; 1 for the input and 3 null bytes
+            if (loc < (numBytesRead-10)) { 
+                printf("[+] Enter hex byte to input.\n$ ");
+                scanf(" %hhx", buffer + loc); 
+            } else { 
+                printf("[!] OOB buffer access spotted!\n"); 
+            }
+        }
+
+        if (cmd == 's') { // save
+            break;
+        }
+
+        printf("\n"); 
+    }
+
+    fclose(file);
+    // close then reopen to edit as needed
+    file = fopen(argv[1], "w");
+    fwrite(buffer, sizeof(char), 1024, file);
+    fclose(file);
+    printf("[+] Edits to file '%s' complete.", argv[1]);
+
+    return 0;
+}
