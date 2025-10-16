@@ -7,6 +7,7 @@
 
 // print the hex values of the read ascii chars in the buffer
 void print_hex(unsigned char* buffer, int numchars) {
+    printf(" 0  1  2  3  4  5  6  7  8  9  10");
     for (int i = 0; i < numchars; i++) {
         if (i % 10 == 0) // every 10 hex bytes gets a newline and prints a number line
             printf("\n%d | ", i/10);
