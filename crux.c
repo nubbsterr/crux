@@ -21,7 +21,7 @@ void print_hex(unsigned char* buffer, int numchars) {
 int main(int argc, char** argv) {
     if (argc < 2) {
         printf("[-] No file was given.");
-        return 0;
+        return 1;
     }
 
 
@@ -44,18 +44,25 @@ int main(int argc, char** argv) {
         char cmd;
         int loc;
 
-        printf("[+] Enter a cmd [p(rint),e(dit),s(ave)] and location [int] (p1, e3...)\n$ ");
-        scanf(" %c%d", &cmd, &loc);
+        printf("[+] Enter a cmd [p(rint),e(dit),s(ave),force q(uit)] and location [int] (p1, e3...)\n$ ");
+        if (scanf(" %c%d", &cmd, &loc) == 2) {
+            // verify that the correct amount of args were parsed
+            // NOTE that this does NOT handle edge cases where multiple inputs are given; e.g. 42 42 will error out twice, though this is better than some undefined behaviour trash
+            ;
+        } else {
+            printf("[!] Failed to parse input!\n");
+            continue;
+        }
         if (cmd == 'p') { // print within buffer bounds
-            (loc < (numBytesRead-10)) ? print_hex(buffer + loc, 10) : printf("[!] OOB buffer access spotted!\n"); // print 10 hex bytes at the specified location
+            (loc <= (numBytesRead-10)) && (loc > 0) ? print_hex(buffer + loc, 10) : printf("[!] OOB buffer access spotted!\n"); // print 10 hex bytes at the specified location
         }
 
-        if (cmd == 'e') { // edit  
+        else if (cmd == 'e') { // edit  
                           // %hhx will ingest just one hex byte and edit THAT byte in the given file
                           // specifically, hh will turn the input into an unsigned char*, which as we know is 1 byte
                           // src: https://stackoverflow.com/questions/21782244/what-is-the-need-of-hh-and-h-format-specifiers
                           // if this is not done, then scanf actually overruns and edits 4 bytes into the file; 1 for the input and 3 null bytes
-            if (loc < (numBytesRead-10)) { 
+            if (loc <= (numBytesRead-10) && loc > 0) { 
                 printf("[+] Enter hex byte to input.\n$ ");
                 scanf(" %hhx", buffer + loc); 
             } else { 
@@ -63,10 +70,18 @@ int main(int argc, char** argv) {
             }
         }
 
-        if (cmd == 's') { // save
+        else if (cmd == 's') { // break from loop and write to buffer
+                          // THIS WILL FAIL IF THERE IS NOTHING NEW IN THE BUFFER!
             break;
         }
 
+        else if (cmd == 'q') {
+            return 1;
+        }
+
+        else {
+            printf("[!] Invalid input was given!!\n");
+        }
         printf("\n"); 
     }
 
