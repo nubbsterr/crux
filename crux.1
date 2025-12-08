@@ -1,0 +1,15 @@
+.TH crux 1 "08 Dec 2025"
+.SH NAME
+crux \- A simple hex editor written in C.
+.SH SYNOPSIS
+crux [filename]
+.SH DESCRIPTION
+Displays hex data of an input file and allows overwriting (but no appending) of the hex data.
+.SH OPTIONS
+No extra options are available besides providing an input file to view.
+.SH EXIT STATUS
+Returns with exit code 1 if no input file is given, or there was an error when trying to read/open the file. Returns with exit code 0 on successful write and exit, or on force quit.
+.SH BUGS
+Please create an issue on this project's GitHub page located here: https://github.com/nubbsterr/crux
+.SH EXAMPLES
+crux README.md

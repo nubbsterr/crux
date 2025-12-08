@@ -1,6 +1,5 @@
 // initially built off of Nir Lichtman's own guide: https://www.youtube.com/watch?v=aSkW8HgQbSk
 // has some more error checking and cool features/prompts
-// the rust implementation is effectively a translation of the C implementation
 
 #include <stdio.h>
 #include <stdbool.h>
@@ -54,7 +53,12 @@ int main(int argc, char** argv) {
             continue;
         }
         if (cmd == 'p') { // print within buffer bounds
-            (loc <= (numBytesRead-10)) && (loc > 0) ? print_hex(buffer + loc, 10) : printf("[!] OOB buffer access spotted!\n"); // print 10 hex bytes at the specified location
+            // if over ternary op for ISO C compliance cuz that's cool lololol
+            if (loc <= (numBytesRead-10) && loc > 0) {
+                print_hex(buffer + loc, 10);
+            } else {
+                printf("[!] OOB buffer access spotted!\n");
+            }
         }
 
         else if (cmd == 'e') { // edit  
@@ -76,7 +80,8 @@ int main(int argc, char** argv) {
         }
 
         else if (cmd == 'q') {
-            return 1;
+            fclose(file);
+            return 0;
         }
 
         else {
