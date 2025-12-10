@@ -43,7 +43,7 @@ int main(int argc, char** argv) {
         char cmd;
         int loc;
 
-        printf("[+] Enter a cmd [p(rint),e(dit),s(ave),force q(uit)] and location [int] (p1, e3...)\n$ ");
+        printf("[+] Enter a cmd [p(rint),e(dit),s(ave),force q(uit)] and location [int] (p1, e3, s/q[any number]...)\n$ ");
         if (scanf(" %c%d", &cmd, &loc) == 2) {
             // verify that the correct amount of args were parsed
             // NOTE that this does NOT handle edge cases where multiple inputs are given; e.g. 42 42 will error out twice, though this is better than some undefined behaviour trash
